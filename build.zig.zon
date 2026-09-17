@@ -9,7 +9,8 @@
         "build.zig",
         "build.zig.zon",
         "src",
-        // For example...
+        "libs",
+        "Makefile"
         //"LICENSE",
         //"README.md",
     },
