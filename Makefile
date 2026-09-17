@@ -4,18 +4,19 @@ EXTRA_FLAGS ?=
 
 # Toolchain definitions targeting x86_64 Linux with musl libc via Zig
 TARGET_TRIPLE ?= x86_64-linux-musl
+BUILD_TYPE    ?= Debug
 ZIG_CC        := $(CURDIR)/.toolchain/zig-cc -target $(TARGET_TRIPLE) $(EXTRA_FLAGS)
 ZIG_CXX       := $(CURDIR)/.toolchain/zig-c++ -target $(TARGET_TRIPLE) $(EXTRA_FLAGS)
 
 # Common environment variables passed to CMake configurations
-CMAKE_ENV     := CC="$(ZIG_CC)" CXX="$(ZIG_CXX)"
+CMAKE_ENV     := CC="$(ZIG_CC)" CXX="$(ZIG_CXX)" CMAKE_BUILD_TYPE="$(BUILD_TYPE)"
 
 .PHONY: all libs compile_commands.json libpcre2
 
 # --- Primary Targets ---
 all: libs compile_commands.json
 
-# Dependant libraries (Specially C libraries)
+# Dependant libraries
 libs: libpcre2
 
 # --- Compilation Database Generation ---

@@ -6,10 +6,31 @@ pub fn build(b: *std.Build) void {
 
     const target_triple = target.result.zigTriple(b.allocator) catch @panic("OOM");
 
+    // Map Zig optimize option to CMake build type and CFLAGS
+    const cmake_build_type = switch (optimize) {
+        .Debug => "Debug",
+        .ReleaseSmall => "MinSizeRel",
+        .ReleaseFast => "Release",
+        .ReleaseSafe => "RelWithDebInfo",
+    };
+
+    const cflags = switch (optimize) {
+        .Debug => "-O0 -g",
+        .ReleaseSmall => "-Os",
+        .ReleaseFast => "-O3",
+        .ReleaseSafe => "-O2 -g",
+    };
+
+    // Pass target triple, build mode, and Zig C compiler wrappers to Make
+    // later usage of make_pcre.step will trigger this build
     const make_pcre = b.addSystemCommand(&.{
         "make",
         "libs",
         b.fmt("TARGET_TRIPLE={s}", .{target_triple}),
+        b.fmt("BUILD_TYPE={s}", .{cmake_build_type}),
+        b.fmt("EXTRA_FLAGS={s}", .{cflags}),
+        b.fmt("ZIG_CC=zig cc -target {s} {s}", .{ target_triple, cflags }),
+        b.fmt("ZIG_CXX=zig c++ -target {s} {s}", .{ target_triple, cflags }),
     });
     make_pcre.setCwd(b.path("."));
 
@@ -20,7 +41,14 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     });
 
-    mod.addObjectFile(b.path("libs/pcre2/build/libpcre2-8.a"));
+    // Point to directory containing libpcre2-8.a
+    mod.addLibraryPath(b.path("libs/pcre2/build"));
+
+    // Statically link pcre2-8 instead of treating the .a file as a raw object
+    mod.linkSystemLibrary("pcre2-8", .{
+        .preferred_link_mode = .static,
+    });
+
     mod.addIncludePath(b.path("libs/pcre2/build/interface"));
     mod.addIncludePath(b.path("src/c"));
 
