@@ -16,3 +16,4 @@ This is the procedure each time we recive a new `libpcre2` update.
 
 And after this we should not touch the pcre2 codebase since we assume it as a static.
 
+    zig build -Dtarget=x86_64-linux-musl
