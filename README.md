@@ -22,16 +22,26 @@ Configure `build.zig` with the following configurations.
     exe.root_module.addImport("zig_pcre", pcre_mod);
     exe.root_module.linkLibrary(pcre_lib);
 
+Example code within your `main.zig` file
+
+    var dns_regex = try pcre.Regex.init(
+        \\^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,}$
+    );
+    defer dns_regex.deinit();
+
+    const is_match = dns_regex.is_match("ziglang.org");
+    if(is_match) {
+        std.debug.print("There is a match\n", .{});
+    }
+
 Build commands
 
-    # Default debug according to the configurations
+    # Debug
     zig build -Dtarget=x86_64-linux-musl
 
     # Release
     zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall
     
-    # zig build clean will be added in future. Until then use following command for cleaning
-    rm -rf zig-out/ .zig-cache/ libs/pcre2/build
 
 # Development procedure
 
@@ -45,6 +55,11 @@ This is the procedure each time we recive a new `libpcre2` update.
     git checkout <new upcoming stable tag>
     rm -rf .git
 
-And after this we should not touch the pcre2 codebase since we assume it as a static.
+After this step the `libs/pcre2` should not be touched.
+
+    zig build -Dtarget=x86_64-linux-musl
+
+    # zig build clean will be added in future. Until then use following command for cleaning
+    rm -rf zig-out/ .zig-cache/ libs/pcre2/build
 
 
