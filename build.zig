@@ -11,6 +11,7 @@ pub fn build(b: *std.Build) void {
         "libs",
         b.fmt("TARGET_TRIPLE={s}", .{target_triple}),
     });
+    make_pcre.setCwd(b.path("."));
 
     const mod = b.addModule("zig_pcre", .{
         .root_source_file = b.path("src/root.zig"),
