@@ -57,6 +57,7 @@ pub fn build(b: *std.Build) void {
         .linkage = .static,
         .root_module = mod,
     });
+    lib.linker_allow_shlib_undefined = true;
 
     lib.step.dependOn(&make_pcre.step);
     b.installArtifact(lib);
@@ -81,8 +82,4 @@ pub fn build(b: *std.Build) void {
     const run_cmd = b.addRunArtifact(exe);
     run_step.dependOn(&run_cmd.step);
     run_cmd.step.dependOn(b.getInstallStep());
-
-    if (b.args) |args| {
-        run_cmd.addArgs(args);
-    }
 }
