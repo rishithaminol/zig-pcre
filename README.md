@@ -42,6 +42,11 @@ Build commands
     # Release
     zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall
     
+# Zig support matrix
+
+|          | v0.16.x | v.0.17.x |
+|----------|---------|----------|
+| zig-pcre | OK      | OK       |
 
 # Development procedure
 

@@ -34,11 +34,23 @@ pub fn build(b: *std.Build) void {
     });
     make_pcre.setCwd(b.path("."));
 
+    const pcrec = b.addTranslateC(.{
+        .root_source_file = b.path("src/c/zig_pcre.h"),
+        .target = target,
+        .optimize = optimize,
+    });
+    pcrec.addIncludePath(b.path("libs/pcre2/build/interface"));
+    pcrec.addIncludePath(b.path("src/c"));
+    pcrec.step.dependOn(&make_pcre.step);
+
     const mod = b.addModule("zig_pcre", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
+        .imports = &.{
+            .{ .name = "pcrec", .module = pcrec.createModule() }
+        }
     });
 
     // Point to directory containing libpcre2-8.a
@@ -49,8 +61,7 @@ pub fn build(b: *std.Build) void {
         .preferred_link_mode = .static,
     });
 
-    mod.addIncludePath(b.path("libs/pcre2/build/interface"));
-    mod.addIncludePath(b.path("src/c"));
+
 
     const lib = b.addLibrary(.{
         .name = "zig_pcre",
