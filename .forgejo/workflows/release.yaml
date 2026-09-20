@@ -18,8 +18,11 @@ jobs:
 
       - name: Create Tarball Archive
         run: |
+          mkdir -p /tmp/release
+          tar --exclude='.git' -czf /tmp/release/zig-pcre-${{ github.ref_name }}.tar.gz .
+
           mkdir -p dist/release
-          tar --exclude='.git' -czf dist/release/M-${{ github.ref_name }}.tar.gz .
+          mv -v /tmp/release/zig-pcre-${{ github.ref_name }}.tar.gz dist/release/
 
       - name: Upload Tarball to Forgejo Releases
         uses: actions/forgejo-release@v2
