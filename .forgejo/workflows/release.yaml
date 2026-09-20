@@ -1,0 +1,32 @@
+name: Package and Release zig-pcre
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: maavee-code-self-docker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Create Tarball Archive
+        run: |
+          mkdir -p dist/release
+          tar --exclude='.git' -czf dist/release/M-${{ github.ref_name }}.tar.gz .
+
+      - name: Upload Tarball to Forgejo Releases
+        uses: actions/forgejo-release@v2
+        with:
+          direction: upload
+          url: ${{ github.server_url }}
+          repo: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          release-dir: dist/release
