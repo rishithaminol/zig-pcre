@@ -11,8 +11,8 @@
         "src",
         "libs",
         "Makefile",
-        ".toolchain"
-        //"LICENSE",
-        //"README.md",
+        ".toolchain",
+        "LICENSE",
+        "README.md",
     },
 }
