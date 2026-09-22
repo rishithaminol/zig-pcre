@@ -1,0 +1,24 @@
+name: CI Test
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'dev/**'
+
+jobs:
+  ci-test-linux:
+    name: Testing x86_64-linux-musl target
+    runs-on: maavee-code-self-docker
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          lfs: true
+          submodules: recursive
+
+      - name: Testing x86_64-linux-musl target
+        run: |
+          source $HOME/.bashrc
+          zig build test -Dtarget=x86_64-linux-musl
