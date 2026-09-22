@@ -6,7 +6,9 @@ const pcre = @import("zig_pcre");
 pub fn main(init: std.process.Init) !void
 {
     _ = init;
+}
 
+test "test for matching" {
     var dns_regex = try pcre.Regex.init(
         \\^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,}$
     );
@@ -27,6 +29,18 @@ pub fn main(init: std.process.Init) !void
         "data.xyz",
     };
 
+    for (valid_domains) |valid_domain| {
+        const is_match = dns_regex.is_match(valid_domain);
+        try std.testing.expect(is_match);
+    }
+}
+
+test "test for non matching" {
+    var dns_regex = try pcre.Regex.init(
+        \\^(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,}$
+    );
+    defer dns_regex.deinit();
+
     const invalid_domains: []const []const u8 = &.{
         "-example.com",
         "example-.com",
@@ -46,24 +60,8 @@ pub fn main(init: std.process.Init) !void
         "admin@example.com",
     };
 
-    for (valid_domains) |valid_domain| {
-        const is_match = dns_regex.is_match(valid_domain);
-        if (is_match) {
-            std.debug.print("{s} matching\n", .{valid_domain});
-        } else {
-            std.debug.print("Error while matching valid domain {s}\n", .{valid_domain});
-            return error.ValidDomainsUnsuccesfullMatching;
-        }
-    }
-
     for (invalid_domains) |invalid_domain| {
         const is_match = dns_regex.is_match(invalid_domain);
-        if (!is_match) {
-            std.debug.print("{s} success for testing non matching\n", .{invalid_domain});
-        } else {
-            std.debug.print("Error while matching invalid domain {s}\n", .{invalid_domain});
-            return error.InValidDomainsUnsuccesfullMatching;
-        }
+        try std.testing.expect(!is_match);
     }
 }
-

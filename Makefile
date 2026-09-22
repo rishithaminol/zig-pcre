@@ -18,7 +18,14 @@ libpcre2:
 		-DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
 		-DCMAKE_C_FLAGS="$(EXTRA_FLAGS)" \
 		-DPCRE2_STATIC_PIC=ON \
-		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+		-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+		-DCMAKE_SYSROOT="/" \
+		-DPCRE2_SUPPORT_LIBZ=OFF \
+		-DPCRE2_SUPPORT_LIBREADLINE=OFF \
+		-DPCRE2_SUPPORT_LIBBZ2=OFF \
+		-DPCRE2_SUPPORT_LIBEDIT=OFF \
+		-DPCRE2_BUILD_PCRE2GREP=OFF \
+		-DPCRE2_BUILD_TESTS=OFF
 	$(MAKE) -C $(BUILD_DIR) -j
 	@# Symlink or copy interface files if generated in target build directory
 	@cp -f $(BUILD_DIR)/pcre2.h libs/pcre2/build/interface/ 2>/dev/null || true
