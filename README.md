@@ -75,6 +75,7 @@ zig build -Dtarget=x86_64-linux-musl -Doptimize=ReleaseSmall
 |                | v0.16.x             | v0.17.x              |
 |----------------|---------------------|----------------------|
 | zig-pcre-0.1.6 | :green_circle:      | :green_circle:       |
+| zig-pcre-0.1.7 | :green_circle:      | :green_circle:       |
 
 # Contributing
 
