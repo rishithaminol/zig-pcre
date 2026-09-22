@@ -18,7 +18,15 @@ jobs:
           lfs: true
           submodules: recursive
 
-      - name: Testing x86_64-linux-musl target
+      - name: Testing [0.16.0] [x86_64-linux-musl]
         run: |
           source $HOME/.bashrc
+          zig build test -Dtarget=x86_64-linux-musl
+          rm -rf .zig-cache/ zig-out/ libs/pcre2/build
+
+      - name: Testing [0.17.0-dev] [x86_64-linux-musl]
+        run: |
+          source $HOME/.bashrc
+          unlink ~/zig
+          ln -svf ~/zig-x86_64-linux-0.17.0 ~/zig
           zig build test -Dtarget=x86_64-linux-musl
