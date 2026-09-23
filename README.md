@@ -24,7 +24,7 @@ This project includes PCRE2 as a Git submodule under `libs/pcre2/`, which is lic
 
 At the moment of development of this library `zig fetch` have some issues with `.tar.gz` file download from codeberg.org. In that case we suggest you to download `zig-pcre-vx.x.x.tar.gz` package and use zig fetch to include within your project. The zig-pcre will not compile if it fetched as a git source because of the existance of `libpcre2` as a git submodule. `zig fetch` does not support Git recursive clone of submodules.
 
-    zig fetch --save https://<repository URI>/zig-pcre/releases/download/v0.1.6/zig-pcre-v0.1.6.tar.gz
+    zig fetch --save https://<repository URI>/zig-pcre/releases/download/v0.1.6/zig-pcre-v0.1.7.tar.gz
 
 Configure `build.zig` of your zig program with the following configurations.
 
