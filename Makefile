@@ -28,7 +28,7 @@ libpcre2:
 		-DPCRE2_BUILD_TESTS=OFF
 	$(MAKE) -C $(BUILD_DIR) -j
 	@# Symlink or copy interface files if generated in target build directory
-	@cp -f $(BUILD_DIR)/pcre2.h libs/pcre2/build/interface/ 2>/dev/null || true
+# 	@cp -f $(BUILD_DIR)/pcre2.h libs/pcre2/build/interface/ 2>/dev/null || true
 
 
 # Only for Kate editor to identify C references.

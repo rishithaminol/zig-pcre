@@ -2,7 +2,7 @@
 #define ZIG_PCRE_H
 
 #define PCRE2_CODE_UNIT_WIDTH 8
-#include <pcre2.h>
+#include "pcre2.h"
 
 typedef pcre2_code zig_pcre_code;
 typedef pcre2_match_data zig_pcre_match_data;

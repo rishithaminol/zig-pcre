@@ -1,7 +1,4 @@
 const std = @import("std");
-// const pcre = @cImport({
-//     @cInclude("zig_pcre.h");
-// });
 const pcre = @import("pcrec");
 
 pub const Regex = struct {

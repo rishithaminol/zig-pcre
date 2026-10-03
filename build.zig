@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -22,8 +23,7 @@ pub fn build(b: *std.Build) void {
     };
 
     // Pass target triple, build mode, and Zig C compiler wrappers to Make
-    // later usage of make_pcre.step will trigger this build
-    const make_pcre = b.addSystemCommand(&.{
+    const make_args = &.{
         "make",
         "libs",
         b.fmt("TARGET_TRIPLE={s}", .{target_triple}),
@@ -31,17 +31,42 @@ pub fn build(b: *std.Build) void {
         b.fmt("EXTRA_FLAGS={s}", .{cflags}),
         b.fmt("ZIG_CC=zig cc -target {s} {s}", .{ target_triple, cflags }),
         b.fmt("ZIG_CXX=zig c++ -target {s} {s}", .{ target_triple, cflags }),
-    });
+    };
+    const make_pcre = b.addSystemCommand(make_args);
     make_pcre.setCwd(b.path("."));
 
+    const pcre_headers = "libs/pcre2/build/interface";
     const pcrec = b.addTranslateC(.{
-        .root_source_file = b.path("src/c/zig_pcre.h"),
+        .root_source_file = b.path("src/zig_pcre.h"),
         .target = target,
         .optimize = optimize,
     });
-    pcrec.addIncludePath(b.path("libs/pcre2/build/interface"));
-    pcrec.addIncludePath(b.path("src/c"));
-    pcrec.step.dependOn(&make_pcre.step);
+    pcrec.addIncludePath(b.path(pcre_headers));
+
+    // This section has to be added ZLS server returns error.InvalidBuildConfig
+    // because of execution of make_pcre dependency. Because of that a logic implemented
+    // if (not exist directory(pcre_headers)) {
+    //   add make_pcre as a step
+    // }
+    // All other builds does not call make_pcre step again in this block.
+    switch(builtin.zig_version.minor) {
+        16 => {
+            _ = b.build_root.handle.openDir(b.graph.io, pcre_headers, .{}) catch |err| {
+                if (err == error.FileNotFound) {
+                    pcrec.step.dependOn(&make_pcre.step);
+                }
+            };
+        },
+        17 => {
+            _ = b.root.openDir(b.graph.io, pcre_headers, .{}) catch |err| {
+                if (err == error.FileNotFound) {
+                    pcrec.step.dependOn(&make_pcre.step);
+                }
+            };
+        },
+        else => {}
+    }
+
 
     const mod = b.addModule("zig_pcre", .{
         .root_source_file = b.path("src/root.zig"),
@@ -52,15 +77,10 @@ pub fn build(b: *std.Build) void {
             .{ .name = "pcrec", .module = pcrec.createModule() }
         }
     });
-
-    // Point to directory containing libpcre2-8.a
     mod.addLibraryPath(b.path("libs/pcre2/build"));
-
-    // Statically link pcre2-8 instead of treating the .a file as a raw object
     mod.linkSystemLibrary("pcre2-8", .{
         .preferred_link_mode = .static,
     });
-
 
 
     const lib = b.addLibrary(.{
@@ -68,8 +88,6 @@ pub fn build(b: *std.Build) void {
         .linkage = .static,
         .root_module = mod,
     });
-    lib.linker_allow_shlib_undefined = true;
-
     lib.step.dependOn(&make_pcre.step);
     b.installArtifact(lib);
 
